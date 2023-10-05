@@ -62,25 +62,25 @@ def axes():
 
 def draw_egg():
     for i in range(0, N - 1):
-        for j in range(0, N - 1):
+        glBegin(GL_TRIANGLE_STRIP)
+        glColor3f(colors[i][0][0], colors[i][0][1], colors[i][0][2])
+        glVertex3f(tab[i][0][0], tab[i][0][1], tab[i][0][2])
+        glColor3f(colors[i][0][0], colors[i][0][1], colors[i][0][2])
+        glVertex3f(tab[i + 1][0][0], tab[i + 1][0][1], tab[i + 1][0][2])
+        glColor3f(colors[i][1][0], colors[i][1][1], colors[i][1][2])
+        glVertex3f(tab[i][1][0], tab[i][1][1], tab[i][1][2])
 
-            glBegin(GL_TRIANGLES)
-            glColor3f(colors[i][j][0], colors[i][j][1], colors[i][j][2])
-            glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])
-            glColor3f(colors[i + 1][j][0], colors[i + 1][j][1], colors[i + 1][j][2])
-            glVertex3f(tab[i + 1][j][0], tab[i + 1][j][1], tab[i + 1][j][2])
-            glColor3f(colors[i][j + 1][0], colors[i][j + 1][1], colors[i][j + 1][2])
-            glVertex3f(tab[i][j + 1][0], tab[i][j + 1][1], tab[i][j + 1][2])
-            glEnd()
+        for j in range(1, N):
+            if j % 2 == 1:
+                glColor3f(colors[i + 1][j][0], colors[i + 1][j][1], colors[i + 1][j][2])
+                glVertex3f(tab[i + 1][j][0], tab[i + 1][j][1], tab[i + 1][j][2])
+            else:
+                glColor3f(colors[i][j][0], colors[i][j][1], colors[i][j][2])
+                glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])
 
-            glBegin(GL_TRIANGLES)
-            glColor3f(colors[i + 1][j + 1][0], colors[i + 1][j + 1][1], colors[i + 1][j + 1][2])
-            glVertex3f(tab[i + 1][j + 1][0], tab[i + 1][j + 1][1], tab[i + 1][j + 1][2])
-            glColor3f(colors[i + 1][j][0], colors[i + 1][j][1], colors[i + 1][j][2])
-            glVertex3f(tab[i + 1][j][0], tab[i + 1][j][1], tab[i + 1][j][2])
-            glColor3f(colors[i][j + 1][0], colors[i][j + 1][1], colors[i][j + 1][2])
-            glVertex3f(tab[i][j + 1][0], tab[i][j + 1][1], tab[i][j + 1][2])
-            glEnd()
+        glColor3f(colors[i][0][0], colors[i][0][1], colors[i][0][2])
+        glVertex3f(tab[i][N - 1][0], tab[i][N - 1][1], tab[i][N - 1][2])
+        glEnd()
 
 
 def render(time):

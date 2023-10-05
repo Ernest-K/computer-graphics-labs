@@ -9,18 +9,24 @@ from OpenGL.GLU import *
 
 N = 20
 
-tab = [[[0] * 3 for i in range(N)] for j in range(N)]
-u_array = [u / (N-1) for u in range(0, N)]
-v_array = [v / (N-1) for v in range(0, N)]
 
-for i in range(0, N):
-    for j in range(0, N):
-        # x
-        tab[i][j][0] = (-90 * u_array[i] ** 5 + 225 * u_array[i] ** 4 - 270 * u_array[i] ** 3 + 180 * u_array[i] ** 2 - 45 * u_array[i]) * math.cos(math.pi * v_array[j])
-        # y
-        tab[i][j][1] = (160 * u_array[i] ** 4 - 320 * u_array[i] ** 3 + 160 * u_array[i] ** 2 - 5)
-        # z
-        tab[i][j][2] = (-90 * u_array[i] ** 5 + 225 * u_array[i] ** 4 - 270 * u_array[i] ** 3 + 180 * u_array[i] ** 2 - 45 * u_array[i]) * math.sin(math.pi * v_array[j])
+def generate_vertices():
+    tab = [[[0] * 3 for i in range(N)] for j in range(N)]
+    u_array = [u / (N - 1) for u in range(0, N)]
+    v_array = [v / (N - 1) for v in range(0, N)]
+
+    for i in range(0, N):
+        for j in range(0, N):
+            # x
+            tab[i][j][0] = (-90 * u_array[i] ** 5 + 225 * u_array[i] ** 4 - 270 * u_array[i] ** 3 + 180 * u_array[
+                i] ** 2 - 45 * u_array[i]) * math.cos(math.pi * v_array[j])
+            # y
+            tab[i][j][1] = (160 * u_array[i] ** 4 - 320 * u_array[i] ** 3 + 160 * u_array[i] ** 2 - 5)
+            # z
+            tab[i][j][2] = (-90 * u_array[i] ** 5 + 225 * u_array[i] ** 4 - 270 * u_array[i] ** 3 + 180 * u_array[
+                i] ** 2 - 45 * u_array[i]) * math.sin(math.pi * v_array[j])
+
+    return tab
 
 
 def startup():
@@ -58,6 +64,8 @@ def axes():
 
 
 def draw_egg():
+    tab = generate_vertices()
+
     glColor3f(1.0, 0.0, 1.0)
     for i in range(0, N - 1):
         for j in range(0, N - 1):
