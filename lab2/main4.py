@@ -47,7 +47,6 @@ def draw_sierpinski_triangle(x, y, a, level):
         draw_sierpinski_triangle(x+a/2, y + a*math.sqrt(3)/2, a, level)
     else:
         draw_triangle(x, y, a)
-    pass
 
 
 def update_viewport(window, width, height):
