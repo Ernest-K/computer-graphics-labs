@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
+import math
 import sys
-from math import cos, pi, sin
+
+from glfw.GLFW import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from glfw.GLFW import *
+
 
 viewer = [0.0, 0.0, 10.0]
-
-pix2angle_h = 1.0
-pix2angle_w = 1.0
-pix2scale = 1.0
+pix2angle = 1.0
 
 theta = 0.0
 phi = 0.0
-camera_default_scale = 10
-camera_scale = camera_default_scale
-
-model_default_scale = 1.0
-model_scale = model_default_scale
 
 left_mouse_button_pressed = 0
 right_mouse_button_pressed = 0
 
 mouse_x_pos_old = 0
-mouse_y_pos_old = 0
-
 delta_x = 0
+mouse_y_pos_old = 0
 delta_y = 0
 
-mode = 1
+scale = 1.0
+
+x_eye = 0
+y_eye = 0
+z_eye = 0
+
+R = 10
+
+mode = True
 
 
 def startup():
@@ -42,7 +43,6 @@ def shutdown():
     pass
 
 
-# drawing functions
 def axes():
     glBegin(GL_LINES)
 
@@ -97,46 +97,44 @@ def example_object():
 
 
 def render(time):
-    global theta, phi
-    global model_scale, camera_scale
-    global viewer
+    global theta
+    global phi
+    global scale
+    global x_eye
+    global y_eye
+    global z_eye
+    global R
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    print(model_scale)
+    scale = 0.25 if scale < 0.25 else scale
+    scale = 5 if scale > 5 else scale
 
-    if camera_scale < 0.05:
-        camera_scale = 0.05
-    if camera_scale > 50:
-        camera_scale = 50
+    R = 2.5 if R < 2.5 else R
+    R = 25 if R > 25 else R
 
-    if model_scale < 0.05:
-        model_scale = 0.05
-    if model_scale > 5:
-        model_scale = 5
-
-    if mode == 1:
-        viewer[0] = camera_scale * cos(theta * (pi / 180)) * cos(phi * (pi / 180))
-        viewer[1] = camera_scale * sin(phi * (pi / 180))
-        viewer[2] = camera_scale * sin(theta * (pi / 180)) * cos(phi * (pi / 180))
+    if mode:    # Obracanie obiektu
+        print("Tryb obracania obiektem")
+        gluLookAt(viewer[0], viewer[1], viewer[2],
+                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+        glRotatef(theta, 0.0, 1.0, 0.0)
+        glRotatef(phi, 1.0, 0.0, 0.0)
+        glScalef(scale, scale, scale)
+    else:       # Poruszanie kamera
+        print("Tryb poruszania kamera")
+        x_eye = R * math.cos(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
+        y_eye = R * math.sin(phi * (math.pi / 180))
+        z_eye = R * math.sin(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
 
         if 90 < abs(phi) < 270:
-            gluLookAt(viewer[0], viewer[1], viewer[2],
+            gluLookAt(x_eye, y_eye, z_eye,
                       0.0, 0.0, 0.0,
                       0.0, -1.0, 0.0)
         else:
-            gluLookAt(viewer[0], viewer[1], viewer[2],
+            gluLookAt(x_eye, y_eye, z_eye,
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
-    else:
-        viewer = [0, 0, 10]
-        gluLookAt(viewer[0], viewer[1], viewer[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-
-        glRotatef(theta, 0.0, 1.0, 0.0)
-        glRotatef(phi, 1.0, 0.0, 0.0)
-        glScalef(model_scale, model_scale, model_scale)
 
     axes()
     example_object()
@@ -145,12 +143,8 @@ def render(time):
 
 
 def update_viewport(window, width, height):
-    global pix2angle_h, pix2angle_w
-    global pix2scale
-
-    pix2angle_w = 360.0 / width
-    pix2angle_h = 360.0 / height
-    pix2scale = 10 / height
+    global pix2angle
+    pix2angle = 360.0 / width
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -167,24 +161,24 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global model_scale, camera_scale, mode
+    global mode
 
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
 
-    if key == GLFW_KEY_R and action == GLFW_PRESS:
-        model_scale = model_default_scale
-        camera_scale = camera_default_scale
-
-    if key == GLFW_KEY_M and action == GLFW_PRESS:
-        mode = -mode
+    if key == GLFW_KEY_SPACE and action == GLFW_RELEASE:
+        mode = not mode
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
-    global delta_x, delta_y
-    global mouse_x_pos_old, mouse_y_pos_old
-    global theta, phi
-    global model_scale, camera_scale
+    global delta_x
+    global mouse_x_pos_old
+    global delta_y
+    global mouse_y_pos_old
+    global theta
+    global phi
+    global scale
+    global R
 
     delta_x = x_pos - mouse_x_pos_old
     mouse_x_pos_old = x_pos
@@ -193,18 +187,19 @@ def mouse_motion_callback(window, x_pos, y_pos):
     mouse_y_pos_old = y_pos
 
     if left_mouse_button_pressed:
-        theta += delta_x * pix2angle_w
-        phi += delta_y * pix2angle_h
+        theta += delta_x * pix2angle
+        theta %= 360
+        phi += delta_y * pix2angle
+        phi %= 360
 
     if right_mouse_button_pressed:
-        if mode == 1:
-            camera_scale += delta_y * pix2scale
-        else:
-            model_scale -= delta_y * pix2scale
+        scale += 0.01 * delta_y * pix2angle
+        R += 0.1 * delta_y * pix2angle
 
 
 def mouse_button_callback(window, button, action, mods):
-    global left_mouse_button_pressed, right_mouse_button_pressed
+    global left_mouse_button_pressed
+    global right_mouse_button_pressed
 
     if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
         left_mouse_button_pressed = 1

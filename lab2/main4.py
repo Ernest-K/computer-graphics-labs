@@ -42,9 +42,9 @@ def draw_sierpinski_triangle(x, y, a, level):
         level -= 1
         a /= 2
 
-        draw_sierpinski_triangle(x, y, a, level)
-        draw_sierpinski_triangle(x+a, y, a, level)
-        draw_sierpinski_triangle(x+a/2, y + a*math.sqrt(3)/2, a, level)
+        draw_sierpinski_triangle(x, y, a, level) # lewo-dół
+        draw_sierpinski_triangle(x+a, y, a, level) # prawo-dół
+        draw_sierpinski_triangle(x+a/2, y + a*math.sqrt(3)/2, a, level) # góra
     else:
         draw_triangle(x, y, a)
 
