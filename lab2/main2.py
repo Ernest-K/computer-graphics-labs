@@ -33,14 +33,13 @@ def draw_rectangle(x, y, a, b, d=1.0):
     a *= d
     b *= d
 
-    glBegin(GL_TRIANGLES) # wskazanie prymitywu
+
     glColor3f(RED, GREEN, BLUE)
+    glBegin(GL_TRIANGLES)  # wskazanie prymitywu
     glVertex2f(x, y)
     glVertex2f(x+b, y+a)
     glVertex2f(x, y+a)
-    glEnd()
 
-    glBegin(GL_TRIANGLES)  # wskazanie prymitywu
     glVertex2f(x, y)
     glVertex2f(x + b, y)
     glVertex2f(x + b, y + a)

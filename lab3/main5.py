@@ -106,9 +106,9 @@ def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
     spin(time * 30 / math.pi)
-    axes()
+    # axes()
 
-    draw_sierpinski_pyramid(0, 0, 0, 5, 3)
+    draw_sierpinski_pyramid(-5, -5, -5, 10, 3)
 
     glFlush()
 
