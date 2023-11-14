@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import math
 import sys
 
 from glfw.GLFW import *
@@ -11,22 +10,25 @@ from OpenGL.GLU import *
 viewer = [0.0, 0.0, 10.0]
 
 theta = 0.0
-phi = 0.0
 pix2angle = 1.0
 
 left_mouse_button_pressed = 0
-right_mouse_button_pressed = 0
-
 mouse_x_pos_old = 0
 delta_x = 0
-mouse_y_pos_old = 0
-delta_y = 0
 
-R = 1.0
+mat_ambient = [1.0, 1.0, 1.0, 1.0]
+mat_diffuse = [1.0, 1.0, 1.0, 1.0]
+mat_specular = [1.0, 1.0, 1.0, 1.0]
+mat_shininess = 20.0
 
-x_eye = 0
-y_eye = 0
-z_eye = 0
+light_ambient = [0.1, 0.1, 0.0, 1.0]
+light_diffuse = [0.8, 0.8, 0.0, 1.0]
+light_specular = [1.0, 1.0, 1.0, 1.0]
+light_position = [0.0, 0.0, 10.0, 1.0]
+
+att_constant = 1.0
+att_linear = 0.05
+att_quadratic = 0.001
 
 
 def startup():
@@ -34,71 +36,38 @@ def startup():
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glEnable(GL_DEPTH_TEST)
 
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient)
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse)
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular)
+    glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess)
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, att_constant)
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, att_linear)
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, att_quadratic)
+
+    glLightfv(GL_LIGHT1, GL_AMBIENT, [0.0, 0.3, 0.6, 5])
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, [0.1, 0.1, 0.0, 0.5])
+    glLightfv(GL_LIGHT1, GL_SPECULAR, [1.0, 1.0, 1.0, 1.0])
+    glLightfv(GL_LIGHT1, GL_POSITION, [20.0, 5.0, 10.0, 1.0])
+
+    glShadeModel(GL_SMOOTH)
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+
+    glEnable(GL_LIGHT1)
+
 
 def shutdown():
     pass
 
 
-def axes():
-    glBegin(GL_LINES)
-
-    glColor3f(1.0, 0.0, 0.0)
-    glVertex3f(-5.0, 0.0, 0.0)
-    glVertex3f(5.0, 0.0, 0.0)
-
-    glColor3f(0.0, 1.0, 0.0)
-    glVertex3f(0.0, -5.0, 0.0)
-    glVertex3f(0.0, 5.0, 0.0)
-
-    glColor3f(0.0, 0.0, 1.0)
-    glVertex3f(0.0, 0.0, -5.0)
-    glVertex3f(0.0, 0.0, 5.0)
-
-    glEnd()
-
-
-def example_object():
-    glColor3f(1.0, 1.0, 1.0)
-
-    quadric = gluNewQuadric()
-    gluQuadricDrawStyle(quadric, GLU_LINE)
-    glRotatef(90, 1.0, 0.0, 0.0)
-    glRotatef(-90, 0.0, 1.0, 0.0)
-
-    gluSphere(quadric, 1.5, 10, 10)
-
-    glTranslatef(0.0, 0.0, 1.1)
-    gluCylinder(quadric, 1.0, 1.5, 1.5, 10, 5)
-    glTranslatef(0.0, 0.0, -1.1)
-
-    glTranslatef(0.0, 0.0, -2.6)
-    gluCylinder(quadric, 0.0, 1.0, 1.5, 10, 5)
-    glTranslatef(0.0, 0.0, 2.6)
-
-    glRotatef(90, 1.0, 0.0, 1.0)
-    glTranslatef(0.0, 0.0, 1.5)
-    gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
-    glTranslatef(0.0, 0.0, -1.5)
-    glRotatef(-90, 1.0, 0.0, 1.0)
-
-    glRotatef(-90, 1.0, 0.0, 1.0)
-    glTranslatef(0.0, 0.0, 1.5)
-    gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
-    glTranslatef(0.0, 0.0, -1.5)
-    glRotatef(90, 1.0, 0.0, 1.0)
-
-    glRotatef(90, 0.0, 1.0, 0.0)
-    glRotatef(-90, 1.0, 0.0, 0.0)
-    gluDeleteQuadric(quadric)
-
-
 def render(time):
     global theta
-    global phi
-    global R
-    global x_eye
-    global y_eye
-    global z_eye
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
@@ -108,27 +77,13 @@ def render(time):
 
     if left_mouse_button_pressed:
         theta += delta_x * pix2angle
-        phi += delta_y * pix2angle
 
-    # glRotatef(theta, 0.0, 1.0, 0.0)
-    # glRotatef(phi, 1.0, 0.0, 0.0)
+    glRotatef(theta, 0.0, 1.0, 0.0)
 
-    if right_mouse_button_pressed:
-        R += 0.01 * delta_y
-
-    # glScalef(scale, scale, scale)
-
-    x_eye = R * math.cos(theta * (math.pi/180)) * math.cos(phi * (math.pi/180))
-    y_eye = R * math.sin(phi * (math.pi/180))
-    z_eye = R * math.sin(theta * (math.pi/180)) * math.cos(phi * (math.pi/180))
-
-    print(R)
-
-    gluLookAt(x_eye, y_eye, z_eye,
-              0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-
-    axes()
-    example_object()
+    quadric = gluNewQuadric()
+    gluQuadricDrawStyle(quadric, GLU_FILL)
+    gluSphere(quadric, 3.0, 10, 10)
+    gluDeleteQuadric(quadric)
 
     glFlush()
 
@@ -159,29 +114,18 @@ def keyboard_key_callback(window, key, scancode, action, mods):
 def mouse_motion_callback(window, x_pos, y_pos):
     global delta_x
     global mouse_x_pos_old
-    global delta_y
-    global mouse_y_pos_old
 
     delta_x = x_pos - mouse_x_pos_old
     mouse_x_pos_old = x_pos
 
-    delta_y = y_pos - mouse_y_pos_old
-    mouse_y_pos_old = y_pos
-
 
 def mouse_button_callback(window, button, action, mods):
     global left_mouse_button_pressed
-    global right_mouse_button_pressed
 
     if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
         left_mouse_button_pressed = 1
     else:
         left_mouse_button_pressed = 0
-
-    if button == GLFW_MOUSE_BUTTON_RIGHT and action == GLFW_PRESS:
-        right_mouse_button_pressed = 1
-    else:
-        right_mouse_button_pressed = 0
 
 
 def main():

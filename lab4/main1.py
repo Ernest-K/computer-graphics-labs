@@ -98,8 +98,8 @@ def render(time):
         theta += delta_x * pix2angle
         phi += delta_y * pix2angle
 
-    glRotatef(theta, 0.0, 1.0, 0.0)
-    glRotatef(phi, 1.0, 0.0, 0.0)
+    glRotatef(theta, 0.0, 1.0, 0.0) # rotacja wokół osi Y
+    glRotatef(phi, 1.0, 0.0, 0.0) # rotacja wokół osi X
 
     axes()
     example_object()
