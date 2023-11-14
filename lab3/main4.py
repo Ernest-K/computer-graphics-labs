@@ -77,16 +77,16 @@ def draw_egg():
         for j in range(0, N-1):
             if j != N-2:
                 glColor3f(colors[i][j][0], colors[i][j][1], colors[i][j][2])
-                glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])
+                glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])    #0   0   0   1
 
                 glColor3f(colors[i][j + 1][0], colors[i][j + 1][1], colors[i][j + 1][2])
-                glVertex3f(tab[i][j + 1][0], tab[i][j + 1][1], tab[i][j + 1][2])
+                glVertex3f(tab[i][j + 1][0], tab[i][j + 1][1], tab[i][j + 1][2])   #0   1   0   2
 
                 glColor3f(colors[i + 1][j][0], colors[i + 1][j][1], colors[i + 1][j][2])
-                glVertex3f(tab[i + 1][j][0], tab[i + 1][j][1], tab[i + 1][j][2])
+                glVertex3f(tab[i + 1][j][0], tab[i + 1][j][1], tab[i + 1][j][2])    #1   0   1   1
 
                 glColor3f(colors[i + 1][j + 1][0], colors[i + 1][j + 1][1], colors[i + 1][j + 1][2])
-                glVertex3f(tab[i + 1][j + 1][0], tab[i + 1][j + 1][1], tab[i + 1][j + 1][2])
+                glVertex3f(tab[i + 1][j + 1][0], tab[i + 1][j + 1][1], tab[i + 1][j + 1][2])    #1   1   1   2
             else:
                 glColor3f(colors[i][j][0], colors[i][j][1], colors[i][j][2])
                 glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])

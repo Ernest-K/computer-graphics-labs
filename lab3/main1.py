@@ -14,6 +14,7 @@ u_array = [u / (N-1) for u in range(0, N)]
 v_array = [v / (N-1) for v in range(0, N)]
 
 print(u_array)
+print(v_array)
 
 for i in range(0, N):
     for j in range(0, N):
