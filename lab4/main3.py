@@ -22,7 +22,7 @@ delta_x = 0
 mouse_y_pos_old = 0
 delta_y = 0
 
-R = 1.0
+R = 10.0
 
 x_eye = 0
 y_eye = 0
@@ -103,8 +103,8 @@ def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    gluLookAt(viewer[0], viewer[1], viewer[2],
-              0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    # gluLookAt(viewer[0], viewer[1], viewer[2],
+    #           0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
     if left_mouse_button_pressed:
         theta += delta_x * pix2angle
@@ -121,8 +121,6 @@ def render(time):
     x_eye = R * math.cos(theta * (math.pi/180)) * math.cos(phi * (math.pi/180))
     y_eye = R * math.sin(phi * (math.pi/180))
     z_eye = R * math.sin(theta * (math.pi/180)) * math.cos(phi * (math.pi/180))
-
-    print(R)
 
     gluLookAt(x_eye, y_eye, z_eye,
               0.0, 0.0, 0.0, 0.0, 1.0, 0.0)

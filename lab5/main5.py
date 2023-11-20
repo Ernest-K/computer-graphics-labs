@@ -8,7 +8,6 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-
 N = 20
 tab = [[[0] * 3 for i in range(N)] for j in range(N)]
 
@@ -16,6 +15,8 @@ u_derivative = [[[0] * 3 for i in range(N)] for j in range(N)]
 v_derivative = [[[0] * 3 for i in range(N)] for j in range(N)]
 
 normals = [[[0] * 3 for i in range(N)] for j in range(N)]
+
+normal_mode = False
 
 viewer = [0.0, 0.0, 20.0]
 
@@ -76,18 +77,24 @@ def generate_vertices():
                 i] ** 2 - 45 * u_array[i]) * math.sin(math.pi * v_array[j])
 
             # x_u derivative
-            u_derivative[i][j][0] = (- 450 * u_array[i]**4 + 900 * u_array[i]**3 - 810 * u_array[i]**2 + 360 * u_array[i] - 45) * (math.cos(math.pi * v_array[j]))
+            u_derivative[i][j][0] = (- 450 * u_array[i] ** 4 + 900 * u_array[i] ** 3 - 810 * u_array[i] ** 2 + 360 *
+                                     u_array[i] - 45) * (math.cos(math.pi * v_array[j]))
             # y_u derivative
-            u_derivative[i][j][1] = (640 * u_array[i]**3 - 960 * u_array[i]**2 + 320 * u_array[i])
+            u_derivative[i][j][1] = (640 * u_array[i] ** 3 - 960 * u_array[i] ** 2 + 320 * u_array[i])
             # z_u derivative
-            u_derivative[i][j][2] = (- 450 * u_array[i]**4 + 900 * u_array[i]**3 - 810 * u_array[i]**2 + 360 * u_array[i] - 45) * (math.sin(math.pi * v_array[j]))
+            u_derivative[i][j][2] = (- 450 * u_array[i] ** 4 + 900 * u_array[i] ** 3 - 810 * u_array[i] ** 2 + 360 *
+                                     u_array[i] - 45) * (math.sin(math.pi * v_array[j]))
 
             # x_v derivative
-            v_derivative[i][j][0] = math.pi * (90 * u_array[i]**5 - 225 * u_array[i]**4 + 270 * u_array[i]**3 - 180 * u_array[i]**2 + 45 * u_array[i]) * (math.sin(math.pi * v_array[j]))
+            v_derivative[i][j][0] = math.pi * (
+                        90 * u_array[i] ** 5 - 225 * u_array[i] ** 4 + 270 * u_array[i] ** 3 - 180 * u_array[
+                    i] ** 2 + 45 * u_array[i]) * (math.sin(math.pi * v_array[j]))
             # y_v derivative
             v_derivative[i][j][1] = 0
             # z_v derivative
-            v_derivative[i][j][2] = (-math.pi) * (90 * u_array[i]**5 - 225 * u_array[i]**4 + 270 * u_array[i]**3 - 180 * u_array[i]**2 + 45 * u_array[i]) * (math.cos(math.pi * v_array[j]))
+            v_derivative[i][j][2] = (-math.pi) * (
+                        90 * u_array[i] ** 5 - 225 * u_array[i] ** 4 + 270 * u_array[i] ** 3 - 180 * u_array[
+                    i] ** 2 + 45 * u_array[i]) * (math.cos(math.pi * v_array[j]))
 
     return tab
 
@@ -97,9 +104,12 @@ def get_normals(tab):
 
     for i in range(0, N):
         for j in range(0, N):
-            normals[i][j][0] = (u_derivative[i][j][1] * v_derivative[i][j][2] - u_derivative[i][j][2] * v_derivative[i][j][1])
-            normals[i][j][1] = (u_derivative[i][j][2] * v_derivative[i][j][0] - u_derivative[i][j][0] * v_derivative[i][j][2])
-            normals[i][j][2] = (u_derivative[i][j][0] * v_derivative[i][j][1] - u_derivative[i][j][1] * v_derivative[i][j][0])
+            normals[i][j][0] = (
+                        u_derivative[i][j][1] * v_derivative[i][j][2] - u_derivative[i][j][2] * v_derivative[i][j][1])
+            normals[i][j][1] = (
+                        u_derivative[i][j][2] * v_derivative[i][j][0] - u_derivative[i][j][0] * v_derivative[i][j][2])
+            normals[i][j][2] = (
+                        u_derivative[i][j][0] * v_derivative[i][j][1] - u_derivative[i][j][1] * v_derivative[i][j][0])
 
             length = math.sqrt(abs(normals[i][j][0]) ** 2 + abs(normals[i][j][1]) ** 2 + abs(normals[i][j][2]) ** 2)
 
@@ -133,11 +143,9 @@ def draw_egg():
     tab = generate_vertices()
     normal = get_normals(tab)
 
-
     glColor3f(0.21, 0.54, 0.90)
     for i in range(0, N - 1):
         for j in range(0, N - 1):
-
             glBegin(GL_TRIANGLES)
             glNormal3f(normal[i][j][0], normal[i][j][1], normal[i][j][2])
             glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])
@@ -180,7 +188,6 @@ def startup():
     glEnable(GL_LIGHTING)
 
 
-
 def shutdown():
     pass
 
@@ -190,6 +197,7 @@ def render(time):
     global phi
     global theta_light
     global phi_light
+    global normal_mode
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
@@ -221,9 +229,9 @@ def render(time):
         elif phi_light < 0:
             phi_light += 360
 
-    xs = 10 * math.cos(theta_light * (math.pi / 180)) * math.cos(phi_light * (math.pi / 180))
-    ys = 10 * math.sin(phi_light * (math.pi / 180))
-    zs = 10 * math.sin(theta_light * (math.pi / 180)) * math.cos(phi_light * (math.pi / 180))
+    xs = 8 * math.cos(theta_light * (math.pi / 180)) * math.cos(phi_light * (math.pi / 180))
+    ys = 8 * math.sin(phi_light * (math.pi / 180))
+    zs = 8 * math.sin(theta_light * (math.pi / 180)) * math.cos(phi_light * (math.pi / 180))
 
     glRotatef(theta, 0.0, 1.0, 0.0)
     glRotatef(phi, 1.0, 0.0, 0.0)
@@ -234,8 +242,10 @@ def render(time):
     glEnable(GL_LIGHT0)
 
     draw_egg()
-    # draw_normal()
-    
+
+    if normal_mode:
+        draw_normal()
+
     # quadric = gluNewQuadric()
     # gluQuadricDrawStyle(quadric, GLU_FILL)
     # gluSphere(quadric, 3.0, 10, 10)
@@ -247,7 +257,6 @@ def render(time):
     gluQuadricDrawStyle(quadric, GLU_LINE)
     gluSphere(quadric, 0.5, 6, 5)
     gluDeleteQuadric(quadric)
-
 
     glFlush()
 
@@ -272,6 +281,7 @@ def update_viewport(window, width, height):
 
 def keyboard_key_callback(window, key, scancode, action, mods):
     global color_index
+    global normal_mode
 
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
@@ -285,6 +295,9 @@ def keyboard_key_callback(window, key, scancode, action, mods):
     if key == GLFW_KEY_B and action == GLFW_PRESS:
         color_index = 2
 
+    if key == GLFW_KEY_SPACE and action == GLFW_PRESS:
+        normal_mode = not normal_mode
+
     if key == GLFW_KEY_UP and action == GLFW_PRESS:
         if light_ambient[color_index] < 1.0:
             light_ambient[color_index] += 0.1
@@ -295,11 +308,11 @@ def keyboard_key_callback(window, key, scancode, action, mods):
 
     if action == GLFW_RELEASE:
         if color_index == 0:
-            print(f'R: {round(light_ambient[color_index], 1)}')
+            print(f'RED: {round(light_ambient[color_index], 1)}')
         elif color_index == 1:
-            print(f'G: {round(light_ambient[color_index], 1)}')
+            print(f'GREEN: {round(light_ambient[color_index], 1)}')
         elif color_index == 2:
-            print(f'B: {round(light_ambient[color_index], 1)}')
+            print(f'BLUE: {round(light_ambient[color_index], 1)}')
 
 
 def mouse_motion_callback(window, x_pos, y_pos):

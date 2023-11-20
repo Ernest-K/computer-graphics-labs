@@ -115,14 +115,14 @@ def render(time):
     R = 25 if R > 25 else R
 
     if mode:    # Obracanie obiektu
-        print("Tryb obracania obiektem")
+        # print("Tryb obracania obiektem")
         gluLookAt(viewer[0], viewer[1], viewer[2],
                   0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
         glRotatef(theta, 0.0, 1.0, 0.0)
         glRotatef(phi, 1.0, 0.0, 0.0)
         glScalef(scale, scale, scale)
     else:       # Poruszanie kamera
-        print("Tryb poruszania kamera")
+        # print("Tryb poruszania kamera")
         x_eye = R * math.cos(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
         y_eye = R * math.sin(phi * (math.pi / 180))
         z_eye = R * math.sin(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
@@ -168,6 +168,10 @@ def keyboard_key_callback(window, key, scancode, action, mods):
 
     if key == GLFW_KEY_SPACE and action == GLFW_RELEASE:
         mode = not mode
+        if mode:
+            print("Tryb obracania obiektem")
+        else:
+            print("Tryb poruszania kamera")
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
