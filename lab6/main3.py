@@ -32,16 +32,8 @@ att_constant = 1.0
 att_linear = 0.05
 att_quadratic = 0.001
 
-key_pressed = False
-
-image = None
-image1 = None
-
 
 def startup():
-    global image
-    global image1
-
     update_viewport(None, 400, 400)
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glEnable(GL_DEPTH_TEST)
@@ -70,8 +62,7 @@ def startup():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-    image = Image.open("tekstura.tga")
-    image1 = Image.open("../tekstury/D1_t.tga")
+    image = Image.open("grogu.tga")
 
     glTexImage2D(
         GL_TEXTURE_2D, 0, 3, image.size[0], image.size[1], 0,
@@ -85,8 +76,6 @@ def shutdown():
 
 def render(time):
     global theta
-    global image
-    global image1
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
@@ -115,54 +104,6 @@ def render(time):
     glVertex3f(-5.0, 5.0, 0.0)
     glEnd()
 
-
-    glBegin(GL_TRIANGLES)
-    glTexCoord2f(0, 1.0)
-    glVertex3f(-5.0, 5.0, 0.0)
-    glTexCoord2f(0.0, 0.0)
-    glVertex3f(-5.0, -5.0, 0.0)
-    glTexCoord2f(0.5, 0.5)
-    glVertex3f(0.0, 0.0, 5.0)
-    glEnd()
-
-    glBegin(GL_TRIANGLES)
-    glTexCoord2f(0.0, 0.0)
-    glVertex3f(-5.0, -5.0, 0.0)
-    glTexCoord2f(1.0, 0.0)
-    glVertex3f(5.0, -5.0, 0.0)
-    glTexCoord2f(0.5, 0.5)
-    glVertex3f(0.0, 0.0, 5.0)
-    glEnd()
-
-    glBegin(GL_TRIANGLES)
-    glTexCoord2f(1.0, 0.0)
-    glVertex3f(5.0, -5.0, 0.0)
-    glTexCoord2f(1.0, 1.0)
-    glVertex3f(5.0, 5.0, 0.0)
-    glTexCoord2f(0.5, 0.5)
-    glVertex3f(0.0, 0.0, 5.0)
-    glEnd()
-
-    glBegin(GL_TRIANGLES)
-    glTexCoord2f(1.0, 1.0)
-    glVertex3f(5.0, 5.0, 0.0)
-    glTexCoord2f(0.0, 1.0)
-    glVertex3f(-5.0, 5.0, 0.0)
-    glTexCoord2f(0.5, 0.5)
-    glVertex3f(0.0, 0.0, 5.0)
-    glEnd()
-
-    if key_pressed:
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, 3, image.size[0], image.size[1], 0,
-            GL_RGB, GL_UNSIGNED_BYTE, image.tobytes("raw", "RGB", 0, -1)
-        )
-    else:
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, 3, image1.size[0], image1.size[1], 0,
-            GL_RGB, GL_UNSIGNED_BYTE, image1.tobytes("raw", "RGB", 0, -1)
-        )
-
     glFlush()
 
 
@@ -185,13 +126,8 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global key_pressed
-
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
-
-    if key == GLFW_KEY_SPACE and action == GLFW_PRESS:
-        key_pressed = not key_pressed
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
