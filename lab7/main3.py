@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 
+import ctypes
+import random
 import sys
 
-import glm
-import numpy
-from OpenGL.GL import *
 from glfw.GLFW import *
+
+import glm
+
+import numpy
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
 
 rendering_program = None
 vertex_array_object = None
 vertex_buffer = None
+
 P_matrix = None
 
 
@@ -17,35 +25,26 @@ def compile_shaders():
     vertex_shader_source = """
         #version 330 core
 
-        in vec4 position;
+        layout(location = 0) in vec4 position;
 
         uniform mat4 M_matrix;
         uniform mat4 V_matrix;
         uniform mat4 P_matrix;
-
         out vec4 vertex_color;
+        in vec4 vertex_color_in;
 
         void main(void) {
-            // next_line_OY symbolizuje kolejne przesuniecia w OY
-            int next_line_OY = int(gl_InstanceID / 10); 
-
-            gl_Position = P_matrix * V_matrix * M_matrix * 
-                ( position + (gl_InstanceID % 10 * vec4(1, 0, 0, 0))
-                           + (next_line_OY * vec4(0, 1, 0, 0))
-                );
-
-            // (gl_InstanceID % 10 * vec4(1, 0, 0, 0))     ---> przesunięcie w OX
-            // (next_line_OY * vec4(0, 1, 0, 0))           ---> przesunięcie w OY
-
-
-            vertex_color = vec4(0.5, 0.5, 0.9, 1.0);
+            gl_Position = P_matrix * V_matrix * M_matrix * position;
+             vertex_color = vertex_color_in;
         }
     """
 
     fragment_shader_source = """
         #version 330 core
-        in vec4 vertex_color;
+
         out vec4 color;
+        in vec4 vertex_color;
+
         void main(void) {
             color = vertex_color;
         }
@@ -153,12 +152,36 @@ def startup():
         -0.25, +0.25, -0.25,
     ], dtype='float32')
 
+    # vertex_colors = numpy.array([
+    #     0.50, 0.92, 0.92, 0.50, 0.92, 0.92, 0.50, 0.92, 0.92,
+    #     0.50, 0.92, 0.92, 0.50, 0.92, 0.92, 0.50, 0.92, 0.92,
+    #     1.00, 0.80, 0.43, 1.00, 0.80, 0.43, 1.00, 0.80, 0.43,
+    #     1.00, 0.80, 0.43, 1.00, 0.80, 0.43, 1.00, 0.80, 0.43,
+    #     0.65, 0.60, 1.00, 0.65, 0.60, 1.00, 0.65, 0.60, 1.00,
+    #     0.65, 0.60, 1.00, 0.65, 0.60, 1.00, 0.65, 0.60, 1.00,
+    #     0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45,
+    #     0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45,
+    #     0.91, 0.26, 0.58, 0.91, 0.26, 0.58, 0.91, 0.26, 0.58,
+    #     0.91, 0.26, 0.58, 0.91, 0.26, 0.58, 0.91, 0.26, 0.58,
+    #     0.88, 0.43, 0.33, 0.88, 0.43, 0.33, 0.88, 0.43, 0.33,
+    #     0.88, 0.43, 0.33, 0.88, 0.43, 0.33, 0.88, 0.43, 0.33,
+    # ], dtype='float32')
+
+    vertex_colors = numpy.array([[random.random(), random.random(), random.random()] * 6 for _ in range(6)], dtype='float32')
+
     vertex_buffer = glGenBuffers(1)
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
     glBufferData(GL_ARRAY_BUFFER, vertex_positions, GL_STATIC_DRAW)
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(0))
     glEnableVertexAttribArray(0)
+
+    vertex_buffer_colors = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_colors)
+    glBufferData(GL_ARRAY_BUFFER, vertex_colors, GL_STATIC_DRAW)
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, None)
+    glEnableVertexAttribArray(1)
 
 
 def shutdown():
@@ -178,9 +201,9 @@ def render(time):
     M_matrix = glm.rotate(glm.mat4(1.0), time, glm.vec3(1.0, 1.0, 0.0))
 
     V_matrix = glm.lookAt(
-        glm.vec3(0.0, 0.0, 12.0),
+        glm.vec3(0.0, 0.0, 10.0),
         glm.vec3(0.0, 0.0, 0.0),
-        glm.vec3(0.0, 12.0, 0.0)
+        glm.vec3(0.0, 1.0, 0.0)
     )
 
     glUseProgram(rendering_program)
@@ -192,12 +215,18 @@ def render(time):
     glUniformMatrix4fv(V_location, 1, GL_FALSE, glm.value_ptr(V_matrix))
     glUniformMatrix4fv(P_location, 1, GL_FALSE, glm.value_ptr(P_matrix))
 
-    # przesunięcie na środek okna - na CPU (można to pominąć, ale tak ładniej wygląda)
-    M_matrix = glm.translate(M_matrix, glm.vec3(-4.0, -4.0, 0.0))
+    M_matrix = glm.translate(M_matrix, glm.vec3(-5.0, -5.0, 0.0))
     glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
 
-    # glDrawArrays(GL_TRIANGLES, 0, 36)
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100)
+    for i in range(10):
+        M_matrix = glm.translate(M_matrix, glm.vec3(1.0, 10.0, 0.0))
+        glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
+
+        for j in range(10):
+            M_matrix = glm.translate(M_matrix, glm.vec3(0.0, -1.0, 0.0))
+            glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
+
+            glDrawArrays(GL_TRIANGLES, 0, 36)
 
 
 def update_viewport(window, width, height):
@@ -227,6 +256,8 @@ def main():
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3)
+    # Poniższą linijkę odkomentować w przypadku pracy w systemie macOS!
+    # glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE)
 
     window = glfwCreateWindow(400, 400, __file__, None, None)
     if not window:

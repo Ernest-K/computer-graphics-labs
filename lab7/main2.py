@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import ctypes
+import random
 import sys
 
 from glfw.GLFW import *
@@ -29,9 +30,12 @@ def compile_shaders():
         uniform mat4 M_matrix;
         uniform mat4 V_matrix;
         uniform mat4 P_matrix;
+        out vec4 vertex_color;
+        in vec4 vertex_color_in;
 
         void main(void) {
             gl_Position = P_matrix * V_matrix * M_matrix * position;
+             vertex_color = vertex_color_in;
         }
     """
 
@@ -39,9 +43,10 @@ def compile_shaders():
         #version 330 core
 
         out vec4 color;
+        in vec4 vertex_color;
 
         void main(void) {
-            color = vec4(0.7, 0.7, 0.7, 1.0);
+            color = vertex_color;
         }
     """
 
@@ -147,12 +152,36 @@ def startup():
         -0.25, +0.25, -0.25,
     ], dtype='float32')
 
+    # vertex_colors = numpy.array([
+    #     0.50, 0.92, 0.92, 0.50, 0.92, 0.92, 0.50, 0.92, 0.92,
+    #     0.50, 0.92, 0.92, 0.50, 0.92, 0.92, 0.50, 0.92, 0.92,
+    #     1.00, 0.80, 0.43, 1.00, 0.80, 0.43, 1.00, 0.80, 0.43,
+    #     1.00, 0.80, 0.43, 1.00, 0.80, 0.43, 1.00, 0.80, 0.43,
+    #     0.65, 0.60, 1.00, 0.65, 0.60, 1.00, 0.65, 0.60, 1.00,
+    #     0.65, 0.60, 1.00, 0.65, 0.60, 1.00, 0.65, 0.60, 1.00,
+    #     0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45,
+    #     0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45,
+    #     0.91, 0.26, 0.58, 0.91, 0.26, 0.58, 0.91, 0.26, 0.58,
+    #     0.91, 0.26, 0.58, 0.91, 0.26, 0.58, 0.91, 0.26, 0.58,
+    #     0.88, 0.43, 0.33, 0.88, 0.43, 0.33, 0.88, 0.43, 0.33,
+    #     0.88, 0.43, 0.33, 0.88, 0.43, 0.33, 0.88, 0.43, 0.33,
+    # ], dtype='float32')
+
+    vertex_colors = numpy.array([[random.random(), random.random(), random.random()] * 6 for _ in range(6)], dtype='float32')
+
     vertex_buffer = glGenBuffers(1)
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
     glBufferData(GL_ARRAY_BUFFER, vertex_positions, GL_STATIC_DRAW)
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(0))
     glEnableVertexAttribArray(0)
+
+    vertex_buffer_colors = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_colors)
+    glBufferData(GL_ARRAY_BUFFER, vertex_colors, GL_STATIC_DRAW)
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, None)
+    glEnableVertexAttribArray(1)
 
 
 def shutdown():
