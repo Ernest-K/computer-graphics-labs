@@ -112,10 +112,10 @@ def get_normals(tab):
                 normals[i][j][1] = 1.0
                 normals[i][j][2] = 0.0
 
-            if i > N / 2 or i == 0:
-                normals[i][j][0] *= -1.0
-                normals[i][j][1] *= -1.0
-                normals[i][j][2] *= -1.0
+            # if i > N / 2 or i == 0:
+            #     normals[i][j][0] *= -1.0
+            #     normals[i][j][1] *= -1.0
+            #     normals[i][j][2] *= -1.0
 
     return normals
 

@@ -10,10 +10,6 @@ from OpenGL.GLU import *
 
 N = 20
 colors = [[[random.random(), random.random(), random.random()] for _ in range(N)] for _ in range(N)]
-# colors = [[[0, 0, 0] for _ in range(N)] for _ in range(N)]
-
-print(colors[0][0][0], colors[0][0][1], colors[0][0][2])
-print(colors[1][1][0], colors[1][1][1], colors[1][1][2])
 
 
 def generate_vertices():

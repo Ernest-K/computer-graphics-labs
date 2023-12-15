@@ -80,6 +80,8 @@ def draw_egg():
             glVertex3f(tab[i][j + 1][0], tab[i][j + 1][1], tab[i][j + 1][2])
             glEnd()
 
+
+            #Trojkat dopelniajacy
             glBegin(GL_TRIANGLES)
             glColor3f(colors[i + 1][j + 1][0], colors[i + 1][j + 1][1], colors[i + 1][j + 1][2])
             glVertex3f(tab[i + 1][j + 1][0], tab[i + 1][j + 1][1], tab[i + 1][j + 1][2])

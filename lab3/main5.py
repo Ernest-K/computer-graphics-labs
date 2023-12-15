@@ -20,9 +20,9 @@ def shutdown():
 
 
 def spin(angle):
-    glRotatef(angle, 1.0, 0.0, 0.0)
+    # glRotatef(angle, 1.0, 0.0, 0.0)
     glRotatef(angle, 0.0, 1.0, 0.0)
-    glRotatef(angle, 0.0, 0.0, 1.0)
+    # glRotatef(angle, 0.0, 0.0, 1.0)
 
 
 def axes():
@@ -105,10 +105,10 @@ def draw_pyramid(x, y, z, a):
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    spin(time * 90 / math.pi)
+    spin(time * 30 / math.pi)
     # axes()
 
-    draw_sierpinski_pyramid(-2.5, -1.76, -2.5, 5, 3)
+    draw_sierpinski_pyramid(-5, -5, -5, 10, 3)
 
     glFlush()
 
